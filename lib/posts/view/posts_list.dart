@@ -19,7 +19,6 @@ class _PostsListState extends State<PostsList> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _scrollController.addListener(_onScroll);
   }
@@ -41,16 +40,16 @@ class _PostsListState extends State<PostsList> {
             }
             return ListView.builder(
               itemBuilder: (BuildContext context, int index) {
-                return index >= state.articles.length
-                        //index >= state.posts.length
+                return
+                    //index >= state.articles.length
+                    index >= state.posts.length
                         ? const BottomLoader()
-                        : PostListItem(articles: state.articles[index])
-                    // : PostListItem(post: state.posts[index])
-                    ;
+                        // : PostListItem(articles: state.articles[index])
+                        : PostListItem(post: state.posts[index]);
               },
               itemCount: state.hasReachedMax
-                  ? state.articles.length
-                  : state.articles.length + 1,
+                  ? state.posts.length
+                  : state.posts.length + 1,
               controller: _scrollController,
             );
           case PostStatus.initial:

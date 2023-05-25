@@ -3,10 +3,12 @@ import 'package:infinitelistapp/posts/posts.dart';
 import 'package:infinitelistapp/posts/models/post.dart';
 
 class PostListItem extends StatelessWidget {
-  PostListItem({super.key, this.post, this.articles});
+  final Post post;
+  // final Articles? articles;
 
-  Post? post;
-  Articles? articles;
+  PostListItem({
+    required this.post,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,18 +16,18 @@ class PostListItem extends StatelessWidget {
     return Material(
       child: ListTile(
         leading: Text(
-          '${
-          //post.id
-          articles!.urlToImage}',
+          '${post.id
+          // articles!.urlToImage
+          }',
           style: textTheme.bodySmall,
         ),
-        title: Text(
-            // post.title
-            articles!.title),
+        title: Text(post.title
+            //articles!.title
+            ),
         isThreeLine: true,
-        subtitle: Text(
-            // post.body
-            articles!.description),
+        subtitle: Text(post.body
+            // articles!.description
+            ),
         dense: true,
       ),
     );

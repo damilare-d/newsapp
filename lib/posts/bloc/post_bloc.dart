@@ -30,51 +30,59 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   }
 
   Future<void> _onPostFetched(
-      PostFetched event, Emitter<PostState> emit) async {
+    PostFetched event,
+    Emitter<PostState> emit,
+  ) async {
     if (state.hasReachedMax) return;
     try {
       if (state.status == PostStatus.initial) {
-        final posts = await _fetchNewsPosts();
-        return emit(state.copyWith(
-          status: PostStatus.success,
-          hasReachedMax: false,
-          posts: posts,
-        ));
+        final posts = await _fetchPosts();
+        return emit(
+          state.copyWith(
+            status: PostStatus.success,
+            hasReachedMax: false,
+            posts: posts,
+          ),
+        );
       }
-      final posts = await _fetchNewsPosts(state.posts.length);
-      emit(posts.isEmpty
-          ? state.copyWith(hasReachedMax: true)
-          : state.copyWith(
-              hasReachedMax: false,
-              posts: List.of(state.posts)..addAll(posts),
-              status: PostStatus.success));
+      final posts = await _fetchPosts(state.posts.length);
+      posts.isEmpty
+          ? emit(state.copyWith(hasReachedMax: true))
+          : emit(
+              state.copyWith(
+                hasReachedMax: false,
+                posts: List.of(state.posts)..addAll(posts),
+                status: PostStatus.success,
+              ),
+            );
     } catch (_) {
       emit(state.copyWith(status: PostStatus.faillure));
     }
   }
 
   ///newsapi key = 8884c0f656cf4dada57cf4465bbcaa2c
-  ///
+  ///on this particular day 25th of may the
+  ///newsapikey seems to be invalid.
 
-  _fetchNewsPosts([int startIndex = 0]) async {
-    final apiKey = '8884c0f656cf4dada57cf4465bbcaa2c';
-    final url = Uri.https('newsapi.org', '/v2/top-headlines', {
-      'country': 'us',
-    });
-    final response = await http.get(url, headers: {
-      'X-Api-Key': apiKey,
-    });
-    if (response.statusCode == 200) {
-      final body = json.decode(response.body);
-      final articles = (body['articles'] as List)
-          .map((articleJson) => Articles.fromJson(articleJson))
-          .toList();
-      return articles;
-    }
-    throw Exception('error fetching posts');
-  }
+  // _fetchNewsPosts([int startIndex = 0]) async {
+  //   final apiKey = '8884c0f656cf4dada57cf4465bbcaa2c';
+  //   final url = Uri.https('newsapi.org', '/v2/top-headlines', {
+  //     'country': 'us',
+  //   });
+  //   final response = await http.get(url, headers: {
+  //     'X-Api-Key': apiKey,
+  //   });
+  //   if (response.statusCode == 200) {
+  //     final body = json.decode(response.body);
+  //     final articles = (body['articles'] as List)
+  //         .map((articleJson) => Articles.fromJson(articleJson))
+  //         .toList();
+  //     return articles;
+  //   }
+  //   throw Exception('error fetching posts');
+  // }
 
-  _fetchPosts([int startIndex = 0]) async {
+  Future<List<Post>> _fetchPosts([int startIndex = 0]) async {
     final response = await httpClient.get(
       Uri.https('jsonplaceholder.typicode.com', '/posts',
           <String, String>{'_start': '$startIndex', '_limit': '$_postLimit'}),
